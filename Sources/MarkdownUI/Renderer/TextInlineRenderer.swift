@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftMath
 
 extension Sequence where Element == InlineNode {
   func renderText(
@@ -60,6 +61,8 @@ private struct TextInlineRenderer {
       self.renderHTML(content)
     case .image(let source, _):
       self.renderImage(source)
+    case .latex(let latex, let isDisplay):
+      self.renderLaTeX(latex, isDisplay: isDisplay)
     default:
       self.defaultRender(inline)
     }
@@ -104,6 +107,11 @@ private struct TextInlineRenderer {
     if let image = self.images[source] {
       self.result = self.result + Text(image)
     }
+  }
+
+  private mutating func renderLaTeX(_ latex: String, isDisplay: Bool) {
+    let latexView = LaTeXInlineView(latex: latex, isDisplay: isDisplay)
+    self.result = self.result + Text(Image(uiImage: latexView.snapshot()))
   }
 
   private mutating func defaultRender(_ inline: InlineNode) {

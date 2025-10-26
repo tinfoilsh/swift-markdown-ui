@@ -418,6 +418,11 @@ extension UnsafeNode {
       cmark_node_set_url(node, source)
       children.compactMap(UnsafeNode.make).forEach { cmark_node_append_child(node, $0) }
       return node
+    case .latex(let latex, let isDisplay):
+      guard let node = cmark_node_new(CMARK_NODE_TEXT) else { return nil }
+      let formatted = isDisplay ? "\\[\(latex)\\]" : "\\(\(latex)\\)"
+      cmark_node_set_literal(node, formatted)
+      return node
     }
   }
 }
