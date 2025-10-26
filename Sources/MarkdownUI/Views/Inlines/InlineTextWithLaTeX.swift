@@ -24,6 +24,8 @@ struct InlineTextWithLaTeX: View {
             self.renderSegment(segment, attributes: attributes)
           }
         }
+      } else if self.hasInlineLaTeX {
+        self.renderMixedContent(attributes: attributes)
       } else {
         self.renderInlineContent(self.inlines, attributes: attributes)
       }
@@ -36,6 +38,15 @@ struct InlineTextWithLaTeX: View {
   private var hasDisplayLaTeX: Bool {
     self.inlines.contains { node in
       if case .latex(_, let isDisplay) = node, isDisplay {
+        return true
+      }
+      return false
+    }
+  }
+
+  private var hasInlineLaTeX: Bool {
+    self.inlines.contains { node in
+      if case .latex(_, let isDisplay) = node, !isDisplay {
         return true
       }
       return false

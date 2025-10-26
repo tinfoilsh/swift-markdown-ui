@@ -26,6 +26,7 @@ struct TableView: View {
   private var label: some View {
     ScrollView(.horizontal, showsIndicators: true) {
       self.gridContent
+        .fixedSize(horizontal: false, vertical: true)
     }
   }
 
@@ -41,7 +42,6 @@ struct TableView: View {
         }
       }
     }
-    .fixedSize(horizontal: false, vertical: true)
     .padding(self.borderWidth)
     .tableDecoration(
       rowCount: self.rowCount,
