@@ -40,11 +40,15 @@ extension InlineNode {
 
     var matches: [(range: NSRange, latex: String, isDisplay: Bool)] = []
 
+    print("[LaTeX Debug] Extracting from text: \(text.prefix(100))")
+
     LaTeXRegex.display.enumerateMatches(in: text, options: [], range: fullRange) { match, _, _ in
       guard let match = match, match.numberOfRanges >= 2 else { return }
       let contentRange = match.range(at: 1)
       if let swiftRange = Range(contentRange, in: text) {
-        matches.append((range: match.range, latex: String(text[swiftRange]), isDisplay: true))
+        let latex = String(text[swiftRange])
+        print("[LaTeX Debug] Found display LaTeX: \(latex)")
+        matches.append((range: match.range, latex: latex, isDisplay: true))
       }
     }
 
@@ -57,7 +61,9 @@ extension InlineNode {
       }
 
       if !overlaps, let swiftRange = Range(contentRange, in: text) {
-        matches.append((range: match.range, latex: String(text[swiftRange]), isDisplay: false))
+        let latex = String(text[swiftRange])
+        print("[LaTeX Debug] Found inline LaTeX: \(latex)")
+        matches.append((range: match.range, latex: latex, isDisplay: false))
       }
     }
 
@@ -82,6 +88,12 @@ extension InlineNode {
       if !remainingText.isEmpty {
         result.append(.text(remainingText))
       }
+    }
+
+    if matches.isEmpty {
+      print("[LaTeX Debug] No LaTeX found in text")
+    } else {
+      print("[LaTeX Debug] Created \(matches.count) LaTeX nodes")
     }
 
     return result.isEmpty ? [.text(text)] : result
