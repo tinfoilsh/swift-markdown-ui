@@ -110,6 +110,19 @@ struct InlineTextWithLaTeX: View {
     )
   }
 
+  @ViewBuilder
+  private func renderMixedContent(attributes: AttributeContainer) -> some View {
+    HStack(alignment: .center, spacing: 0) {
+      ForEach(Array(self.inlines.enumerated()), id: \.offset) { _, node in
+        if case .latex(let latex, _) = node {
+          MathView(equation: latex, fontSize: attributes.fontProperties?.size ?? 15, isDisplay: false)
+        } else {
+          self.renderInlineContent([node], attributes: attributes)
+        }
+      }
+    }
+  }
+
   private func loadInlineImages() async throws -> [String: Image] {
     let images = Set(self.inlines.compactMap(\.imageData))
     guard !images.isEmpty else { return [:] }
