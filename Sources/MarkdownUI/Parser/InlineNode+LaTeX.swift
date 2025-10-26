@@ -18,10 +18,12 @@ extension Sequence where Element == InlineNode {
     var result: [InlineNode] = []
     var accumulatedText = ""
 
-    for node in self {
+    for (i, node) in self.enumerated() {
       if case .text(let content) = node {
+        print("[LaTeX Debug]   mergingConsecutiveTextNodes: Node \(i) is text: \"\(content.prefix(30))\"")
         accumulatedText += content
       } else {
+        print("[LaTeX Debug]   mergingConsecutiveTextNodes: Node \(i) is NOT text: \(node)")
         if !accumulatedText.isEmpty {
           result.append(.text(accumulatedText))
           accumulatedText = ""
