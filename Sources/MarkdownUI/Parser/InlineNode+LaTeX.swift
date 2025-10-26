@@ -22,6 +22,12 @@ extension Sequence where Element == InlineNode {
       if case .text(let content) = node {
         print("[LaTeX Debug]   mergingConsecutiveTextNodes: Node \(i) is text: \"\(content.prefix(30))\"")
         accumulatedText += content
+      } else if case .softBreak = node {
+        print("[LaTeX Debug]   mergingConsecutiveTextNodes: Node \(i) is softBreak, treating as newline in text")
+        accumulatedText += "\n"
+      } else if case .lineBreak = node {
+        print("[LaTeX Debug]   mergingConsecutiveTextNodes: Node \(i) is lineBreak, treating as newline in text")
+        accumulatedText += "\n"
       } else {
         print("[LaTeX Debug]   mergingConsecutiveTextNodes: Node \(i) is NOT text: \(node)")
         if !accumulatedText.isEmpty {
