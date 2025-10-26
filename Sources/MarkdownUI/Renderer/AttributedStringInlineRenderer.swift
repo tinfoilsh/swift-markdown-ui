@@ -62,6 +62,9 @@ private struct AttributedStringInlineRenderer {
       self.renderLink(destination: destination, children: children)
     case .image(let source, let children):
       self.renderImage(source: source, children: children)
+    case .latex(let latex, let isDisplay):
+      let wrappedLatex = isDisplay ? "\\[\(latex)\\]" : "\\(\(latex)\\)"
+      self.renderText(wrappedLatex)
     }
   }
 

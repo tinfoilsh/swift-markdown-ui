@@ -33,6 +33,8 @@ struct ParagraphView: View {
       let imageFlow = ImageFlow(content)
     {
       imageFlow
+    } else if let latexView = InlineTextWithLaTeX(content) {
+      latexView
     } else {
       InlineText(content)
     }
