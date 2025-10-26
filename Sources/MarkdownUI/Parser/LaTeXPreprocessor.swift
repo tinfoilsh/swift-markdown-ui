@@ -1,45 +1,23 @@
 import Foundation
 
 enum LaTeXPreprocessor {
-  private static let displayPattern = #"\\\[(.*?)\\\]"#
-  private static let inlinePattern = #"\\\((.*?)\\\)"#
-
-  private static let displayRegex = try! NSRegularExpression(
-    pattern: displayPattern,
-    options: [.dotMatchesLineSeparators]
-  )
-  private static let inlineRegex = try! NSRegularExpression(
-    pattern: inlinePattern,
-    options: []
-  )
-
-  /// Protect LaTeX expressions from markdown processing by replacing backslashes
+  /// Protect LaTeX expressions from markdown processing by double-escaping backslashes
   static func protect(_ markdown: String) -> String {
     var result = markdown
 
-    // Replace \[ with ￼LATEX_DISPLAY_START￼ and \] with ￼LATEX_DISPLAY_END￼
-    result = result.replacingOccurrences(of: "\\[", with: "￼LATEX_DISPLAY_START￼")
-    result = result.replacingOccurrences(of: "\\]", with: "￼LATEX_DISPLAY_END￼")
-
-    // Replace \( with ￼LATEX_INLINE_START￼ and \) with ￼LATEX_INLINE_END￼
-    result = result.replacingOccurrences(of: "\\(", with: "￼LATEX_INLINE_START￼")
-    result = result.replacingOccurrences(of: "\\)", with: "￼LATEX_INLINE_END￼")
+    // Double escape LaTeX delimiters: \[ becomes \\[
+    // Markdown will treat the first \ as escaping the second \
+    // So \\[ survives as \[ after markdown processing
+    result = result.replacingOccurrences(of: "\\[", with: "\\\\[")
+    result = result.replacingOccurrences(of: "\\]", with: "\\\\]")
+    result = result.replacingOccurrences(of: "\\(", with: "\\\\(")
+    result = result.replacingOccurrences(of: "\\)", with: "\\\\)")
 
     return result
   }
 
-  /// Restore protected LaTeX expressions after markdown processing
+  /// Restore is a no-op since markdown processing handles the escaping
   static func restore(_ text: String) -> String {
-    var result = text
-
-    // Restore display LaTeX delimiters
-    result = result.replacingOccurrences(of: "￼LATEX_DISPLAY_START￼", with: "\\[")
-    result = result.replacingOccurrences(of: "￼LATEX_DISPLAY_END￼", with: "\\]")
-
-    // Restore inline LaTeX delimiters
-    result = result.replacingOccurrences(of: "￼LATEX_INLINE_START￼", with: "\\(")
-    result = result.replacingOccurrences(of: "￼LATEX_INLINE_END￼", with: "\\)")
-
-    return result
+    return text
   }
 }
