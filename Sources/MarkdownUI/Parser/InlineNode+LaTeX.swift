@@ -1,8 +1,8 @@
 import Foundation
 
 private enum LaTeXRegex {
-  static let display = try! NSRegularExpression(pattern: #"\\\[(.*?)\\\]"#, options: [.dotMatchesLineSeparators])
-  static let inline = try! NSRegularExpression(pattern: #"\\\((.*?)\\\)"#, options: [])
+  static let display = try! NSRegularExpression(pattern: #"\\\[\s*(.*?)\s*\\\]"#, options: [.dotMatchesLineSeparators])
+  static let inline = try! NSRegularExpression(pattern: #"\\\(\s*(.*?)\s*\\\)"#, options: [])
 }
 
 extension Sequence where Element == InlineNode {

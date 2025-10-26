@@ -4,7 +4,8 @@ import Foundation
 
 extension Array where Element == BlockNode {
   init(markdown: String) {
-    let blocks = UnsafeNode.parseMarkdown(markdown) { document in
+    let preprocessed = LaTeXPreprocessor.protect(markdown)
+    let blocks = UnsafeNode.parseMarkdown(preprocessed) { document in
       document.children.compactMap(BlockNode.init(unsafeNode:))
     }
     self.init(blocks ?? .init())
@@ -125,7 +126,7 @@ extension InlineNode {
   fileprivate init?(unsafeNode: UnsafeNode) {
     switch unsafeNode.nodeType {
     case .text:
-      self = .text(unsafeNode.literal ?? "")
+      self = .text(LaTeXPreprocessor.restore(unsafeNode.literal ?? ""))
     case .softBreak:
       self = .softBreak
     case .lineBreak:
