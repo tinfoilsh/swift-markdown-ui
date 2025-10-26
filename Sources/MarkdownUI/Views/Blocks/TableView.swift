@@ -41,6 +41,7 @@ struct TableView: View {
         }
       }
     }
+    .fixedSize(horizontal: false, vertical: true)
     .padding(self.borderWidth)
     .tableDecoration(
       rowCount: self.rowCount,
