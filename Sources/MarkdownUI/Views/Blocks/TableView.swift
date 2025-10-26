@@ -36,7 +36,7 @@ struct TableView: View {
         GridRow {
           ForEach(0..<self.columnCount, id: \.self) { column in
             TableCell(row: row, column: column, cell: self.rows[row].cells[column])
-              .gridColumnAlignment(.init(self.columnAlignments[column]))
+              .gridColumnAlignment(.leading)
           }
         }
       }

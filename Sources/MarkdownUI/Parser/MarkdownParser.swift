@@ -64,6 +64,14 @@ extension BlockNode {
       self = .htmlBlock(content: unsafeNode.literal ?? "")
     case .paragraph:
       let inlineNodes = unsafeNode.children.compactMap(InlineNode.init(unsafeNode:))
+      print("[LaTeX Debug] Paragraph has \(inlineNodes.count) inline nodes:")
+      for (i, node) in inlineNodes.enumerated() {
+        if case .text(let content) = node {
+          print("[LaTeX Debug]   Node \(i): text(\"\(content.prefix(50))\")")
+        } else {
+          print("[LaTeX Debug]   Node \(i): \(node)")
+        }
+      }
       self = .paragraph(content: inlineNodes.extractingLaTeX())
     case .heading:
       self = .heading(
@@ -119,7 +127,9 @@ extension RawTableCell {
     guard unsafeNode.nodeType == .tableCell else {
       fatalError("Expected a table cell but got a '\(unsafeNode.nodeType)' instead.")
     }
-    self.init(content: unsafeNode.children.compactMap(InlineNode.init(unsafeNode:)))
+    let inlineNodes = unsafeNode.children.compactMap(InlineNode.init(unsafeNode:))
+    print("[LaTeX Debug] Table cell has \(inlineNodes.count) inline nodes")
+    self.init(content: inlineNodes.extractingLaTeX())
   }
 }
 
