@@ -4,6 +4,7 @@ import SwiftUI
 struct TableView: View {
   @Environment(\.theme.table) private var table
   @Environment(\.tableBorderStyle.strokeStyle.lineWidth) private var borderWidth
+  @Environment(\.tableMaxWidth) private var tableMaxWidth
 
   private let columnAlignments: [RawTableColumnAlignment]
   private let rows: [RawTableRow]
@@ -23,7 +24,14 @@ struct TableView: View {
   }
 
   private var label: some View {
-    Grid(horizontalSpacing: self.borderWidth, verticalSpacing: self.borderWidth) {
+    ScrollView(.horizontal, showsIndicators: true) {
+      self.gridContent
+    }
+  }
+
+  @ViewBuilder
+  private var gridContent: some View {
+    let grid = Grid(horizontalSpacing: self.borderWidth, verticalSpacing: self.borderWidth) {
       ForEach(0..<self.rowCount, id: \.self) { row in
         GridRow {
           ForEach(0..<self.columnCount, id: \.self) { column in
@@ -40,6 +48,12 @@ struct TableView: View {
       background: TableBackgroundView.init,
       overlay: TableBorderView.init
     )
+
+    if let maxWidth = self.tableMaxWidth {
+      grid.frame(maxWidth: maxWidth)
+    } else {
+      grid
+    }
   }
 
   private var rowCount: Int {

@@ -22,6 +22,16 @@ extension View {
   ) -> some View {
     self.environment(\.tableBackgroundStyle, tableBackgroundStyle)
   }
+
+  /// Sets the maximum width for Markdown tables in a view hierarchy.
+  ///
+  /// Use this modifier to control the maximum width of tables. Tables will adapt to their content width
+  /// up to this maximum, and become horizontally scrollable if the content exceeds this width.
+  ///
+  /// - Parameter maxWidth: The maximum width for tables, or `nil` for no limit.
+  public func markdownTableMaxWidth(_ maxWidth: CGFloat?) -> some View {
+    self.environment(\.tableMaxWidth, maxWidth)
+  }
 }
 
 extension EnvironmentValues {
@@ -34,6 +44,11 @@ extension EnvironmentValues {
     get { self[TableBackgroundStyleKey.self] }
     set { self[TableBackgroundStyleKey.self] = newValue }
   }
+
+  var tableMaxWidth: CGFloat? {
+    get { self[TableMaxWidthKey.self] }
+    set { self[TableMaxWidthKey.self] = newValue }
+  }
 }
 
 private struct TableBorderStyleKey: EnvironmentKey {
@@ -42,4 +57,8 @@ private struct TableBorderStyleKey: EnvironmentKey {
 
 private struct TableBackgroundStyleKey: EnvironmentKey {
   static let defaultValue = TableBackgroundStyle.clear
+}
+
+private struct TableMaxWidthKey: EnvironmentKey {
+  static let defaultValue: CGFloat? = nil
 }

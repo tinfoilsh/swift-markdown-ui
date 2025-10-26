@@ -63,7 +63,8 @@ extension BlockNode {
     case .htmlBlock:
       self = .htmlBlock(content: unsafeNode.literal ?? "")
     case .paragraph:
-      self = .paragraph(content: unsafeNode.children.compactMap(InlineNode.init(unsafeNode:)))
+      let inlineNodes = unsafeNode.children.compactMap(InlineNode.init(unsafeNode:))
+      self = .paragraph(content: inlineNodes.extractingLaTeX())
     case .heading:
       self = .heading(
         level: unsafeNode.headingLevel,

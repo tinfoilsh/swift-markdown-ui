@@ -7,7 +7,34 @@ private enum LaTeXRegex {
 
 extension Sequence where Element == InlineNode {
   func extractingLaTeX() -> [InlineNode] {
-    self.flatMap { $0.extractingLaTeX() }
+    // First, merge consecutive text nodes (cmark splits \[...\] into separate text nodes)
+    let merged = self.mergingConsecutiveTextNodes()
+    print("[LaTeX Debug] Merged \(Array(self).count) nodes into \(merged.count) nodes")
+    // Then extract LaTeX from the merged nodes
+    return merged.flatMap { $0.extractingLaTeX() }
+  }
+
+  private func mergingConsecutiveTextNodes() -> [InlineNode] {
+    var result: [InlineNode] = []
+    var accumulatedText = ""
+
+    for node in self {
+      if case .text(let content) = node {
+        accumulatedText += content
+      } else {
+        if !accumulatedText.isEmpty {
+          result.append(.text(accumulatedText))
+          accumulatedText = ""
+        }
+        result.append(node)
+      }
+    }
+
+    if !accumulatedText.isEmpty {
+      result.append(.text(accumulatedText))
+    }
+
+    return result
   }
 }
 
