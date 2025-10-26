@@ -6,7 +6,12 @@ extension Sequence where Element == InlineNode {
   }
 
   func containsLaTeX() -> Bool {
-    self.contains { $0.containsLaTeX() }
+    self.extractingLaTeX().contains { node in
+      if case .latex = node {
+        return true
+      }
+      return node.children.containsLaTeX()
+    }
   }
 }
 

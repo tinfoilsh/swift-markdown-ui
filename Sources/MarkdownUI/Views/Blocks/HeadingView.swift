@@ -23,10 +23,14 @@ struct HeadingView: View {
 
   @ViewBuilder private var label: some View {
     if self.containsLaTeX {
-      InlineTextWithLaTeX(self.content)
+      InlineTextWithLaTeX(self.contentWithExtractedLaTeX)
     } else {
       InlineText(self.content)
     }
+  }
+
+  private var contentWithExtractedLaTeX: [InlineNode] {
+    self.content.extractingLaTeX()
   }
 
   private var containsLaTeX: Bool {

@@ -16,6 +16,8 @@ extension InlineNode {
     switch self {
     case .text(let content):
       return extractLaTeXFromText(content)
+    case .code, .html:
+      return [self]
     case .emphasis(let children):
       return [.emphasis(children: children.extractingLaTeX())]
     case .strong(let children):

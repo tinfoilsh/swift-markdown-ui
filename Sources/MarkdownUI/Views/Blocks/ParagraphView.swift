@@ -33,19 +33,10 @@ struct ParagraphView: View {
       let imageFlow = ImageFlow(content)
     {
       imageFlow
-    } else if self.containsLaTeX {
-      InlineTextWithLaTeX(content)
+    } else if self.content.containsLaTeX() {
+      InlineTextWithLaTeX(self.content.extractingLaTeX())
     } else {
       InlineText(content)
-    }
-  }
-
-  private var containsLaTeX: Bool {
-    self.content.contains { node in
-      if case .latex = node {
-        return true
-      }
-      return false
     }
   }
 }

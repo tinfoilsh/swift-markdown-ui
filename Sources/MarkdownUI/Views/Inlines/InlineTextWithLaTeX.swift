@@ -18,10 +18,14 @@ struct InlineTextWithLaTeX: View {
 
   var body: some View {
     TextStyleAttributesReader { attributes in
-      VStack(alignment: .leading, spacing: 0) {
-        ForEach(Array(self.segments.enumerated()), id: \.offset) { _, segment in
-          self.renderSegment(segment, attributes: attributes)
+      if self.hasDisplayLaTeX {
+        VStack(alignment: .leading, spacing: 0) {
+          ForEach(Array(self.segments.enumerated()), id: \.offset) { _, segment in
+            self.renderSegment(segment, attributes: attributes)
+          }
         }
+      } else {
+        self.renderInlineContent(self.inlines, attributes: attributes)
       }
     }
     .task(id: self.inlines) {
@@ -29,69 +33,70 @@ struct InlineTextWithLaTeX: View {
     }
   }
 
-  private var segments: [[InlineNode]] {
-    var result: [[InlineNode]] = []
-    var currentSegment: [InlineNode] = []
+  private var hasDisplayLaTeX: Bool {
+    self.inlines.contains { node in
+      if case .latex(_, let isDisplay) = node, isDisplay {
+        return true
+      }
+      return false
+    }
+  }
+
+  private var segments: [Segment] {
+    var result: [Segment] = []
+    var currentInlineNodes: [InlineNode] = []
 
     for inline in self.inlines {
-      if case .latex(_, let isDisplay) = inline, isDisplay {
-        if !currentSegment.isEmpty {
-          result.append(currentSegment)
-          currentSegment = []
+      if case .latex(let latex, let isDisplay) = inline, isDisplay {
+        if !currentInlineNodes.isEmpty {
+          result.append(.inline(currentInlineNodes))
+          currentInlineNodes = []
         }
-        result.append([inline])
+        result.append(.display(latex))
       } else {
-        currentSegment.append(inline)
+        currentInlineNodes.append(inline)
       }
     }
 
-    if !currentSegment.isEmpty {
-      result.append(currentSegment)
+    if !currentInlineNodes.isEmpty {
+      result.append(.inline(currentInlineNodes))
     }
 
     return result
   }
 
+  private enum Segment {
+    case inline([InlineNode])
+    case display(String)
+  }
+
   @ViewBuilder
-  private func renderSegment(_ segment: [InlineNode], attributes: AttributeContainer) -> some View {
-    if segment.count == 1, case .latex(let latex, let isDisplay) = segment[0], isDisplay {
-      MathView(equation: latex, fontSize: attributes.fontProperties?.size ?? 17)
+  private func renderSegment(_ segment: Segment, attributes: AttributeContainer) -> some View {
+    switch segment {
+    case .display(let latex):
+      MathView(equation: latex, fontSize: attributes.fontProperties?.size ?? 17, isDisplay: true)
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.vertical, 4)
-    } else {
-      self.renderInlineSegment(segment, attributes: attributes)
+    case .inline(let nodes):
+      self.renderInlineContent(nodes, attributes: attributes)
     }
   }
 
   @ViewBuilder
-  private func renderInlineSegment(_ segment: [InlineNode], attributes: AttributeContainer) -> some View {
-    HStack(alignment: .firstTextBaseline, spacing: 0) {
-      ForEach(Array(segment.enumerated()), id: \.offset) { _, inline in
-        switch inline {
-        case .latex(let latex, _):
-          MathView(equation: latex, fontSize: attributes.fontProperties?.size ?? 17)
-            .fixedSize()
-        case .image(let source, _):
-          if let image = self.inlineImages[source] {
-            Text(image)
-          }
-        default:
-          [inline].renderText(
-            baseURL: self.baseURL,
-            textStyles: InlineTextStyles(
-              code: self.theme.code,
-              emphasis: self.theme.emphasis,
-              strong: self.theme.strong,
-              strikethrough: self.theme.strikethrough,
-              link: self.theme.link
-            ),
-            images: self.inlineImages,
-            softBreakMode: self.softBreakMode,
-            attributes: attributes
-          )
-        }
-      }
-    }
+  private func renderInlineContent(_ nodes: [InlineNode], attributes: AttributeContainer) -> some View {
+    nodes.renderText(
+      baseURL: self.baseURL,
+      textStyles: InlineTextStyles(
+        code: self.theme.code,
+        emphasis: self.theme.emphasis,
+        strong: self.theme.strong,
+        strikethrough: self.theme.strikethrough,
+        link: self.theme.link
+      ),
+      images: self.inlineImages,
+      softBreakMode: self.softBreakMode,
+      attributes: attributes
+    )
   }
 
   private func loadInlineImages() async throws -> [String: Image] {

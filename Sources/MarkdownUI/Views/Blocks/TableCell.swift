@@ -30,18 +30,17 @@ struct TableCell: View {
     if let imageFlow = ImageFlow(self.cell.content) {
       imageFlow
     } else if self.containsLaTeX {
-      InlineTextWithLaTeX(self.cell.content)
+      InlineTextWithLaTeX(self.contentWithExtractedLaTeX)
     } else {
       InlineText(self.cell.content)
     }
   }
 
+  private var contentWithExtractedLaTeX: [InlineNode] {
+    self.cell.content.extractingLaTeX()
+  }
+
   private var containsLaTeX: Bool {
-    self.cell.content.contains { node in
-      if case .latex = node {
-        return true
-      }
-      return false
-    }
+    self.cell.content.containsLaTeX()
   }
 }
