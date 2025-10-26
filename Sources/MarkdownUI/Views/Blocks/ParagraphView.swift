@@ -34,7 +34,7 @@ struct ParagraphView: View {
     {
       imageFlow
     } else if self.content.containsLaTeX() {
-      InlineTextWithLaTeX(self.content.extractingLaTeX())
+      InlineTextWithLaTeX(self.content)
     } else {
       InlineText(content)
     }
