@@ -64,12 +64,20 @@ extension BlockNode {
       self = .htmlBlock(content: unsafeNode.literal ?? "")
     case .paragraph:
       let inlineNodes = unsafeNode.children.compactMap(InlineNode.init(unsafeNode:))
-      print("[LaTeX Debug] Paragraph has \(inlineNodes.count) inline nodes:")
-      for (i, node) in inlineNodes.enumerated() {
+      let hasBackslash = inlineNodes.contains { node in
         if case .text(let content) = node {
-          print("[LaTeX Debug]   Node \(i): text(\"\(content.prefix(50))\")")
-        } else {
-          print("[LaTeX Debug]   Node \(i): \(node)")
+          return content.contains("\\[") || content.contains("\\]") || content.contains("\\(") || content.contains("\\)")
+        }
+        return false
+      }
+      if hasBackslash {
+        print("[LaTeX Debug] Paragraph with LaTeX has \(inlineNodes.count) inline nodes:")
+        for (i, node) in inlineNodes.enumerated() {
+          if case .text(let content) = node {
+            print("[LaTeX Debug]   Node \(i): text(\"\(content)\")")
+          } else {
+            print("[LaTeX Debug]   Node \(i): \(node)")
+          }
         }
       }
       self = .paragraph(content: inlineNodes.extractingLaTeX())
